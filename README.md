@@ -9,17 +9,5 @@ Pruebas y contrl de calidad
 * JUnit 5
 * Mockito
 
- Estructuta del proyecto
- ProyectoLatam/
-├── src/
-│   ├── main/java/com/proyecto/domain/
-│   │   ├── MedicamentoConReceta.java
-│   │   ├── Receta.java
-│   │   └── exception/
-│   │       └── RecetaInvalidaExcepcion.java
-│   └── test/java/com/proyecto/domain/
-│       └── MedicamentoConRecetaTest.java
-└── README.md
-
 Ejecutar pruebas:
    mvn test
