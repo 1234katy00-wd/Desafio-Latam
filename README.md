@@ -18,12 +18,8 @@ Pruebas y contrl de calidad
 │   │   └── exception/
 │   │       └── RecetaInvalidaExcepcion.java
 │   └── test/java/com/proyecto/domain/
-
-
-Ejecutar pruebas:
-   mvn test
-
-
 │       └── MedicamentoConRecetaTest.java
 └── README.md
 
+Ejecutar pruebas:
+   mvn test
