@@ -69,5 +69,3 @@ Desde la raíz del proyecto:
 ```bash
 mvn test
 ```
-
-> El proyecto ya cuenta con tests de dominio, aplicación e infraestructura que permiten validar las reglas de negocio y las fronteras de dependencia.
