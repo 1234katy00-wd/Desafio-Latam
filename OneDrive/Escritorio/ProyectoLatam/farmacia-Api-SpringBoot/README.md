@@ -1,153 +1,149 @@
-# Farmacia Application
+# Farmacia API
 
-Una aplicación web desarrollada con Spring Boot para la gestión de medicamentos en una farmacia.
-
-## Descripción
-
-Esta es una aplicación backend construida con Spring Boot que proporciona funcionalidades para la gestión de medicamentos. La aplicación incluye controladores REST, servicios de negocio, manejo de excepciones y pruebas unitarias.
+API REST para consultar medicamentos y simular compras en una farmacia. El proyecto está construido con Spring Boot y se encuentra dentro del directorio `demo/`.
 
 ## Tecnologías
 
-- **Java**: Lenguaje de programación principal
-- **Spring Boot**: Framework web y de inyección de dependencias
-- **Maven**: Gestor de dependencias y construcción del proyecto
-- **JUnit**: Framework de pruebas unitarias
+- Java 25
+- Spring Boot 3.3.2
+- Maven
+- Spring Web
+- Spring Validation
+- JUnit y Spring Boot Test
+- JaCoCo para el reporte de cobertura
 
-## Estructura del Proyecto
+## Requisitos
 
-```
-src/
-├── main/
-│   ├── java/com/katerin/farmacia/
-│   │   ├── FarmaciaApplication.java          # Clase principal de la aplicación
-│   │   ├── ServletInitializer.java           # Inicializador de Servlet
-│   │   ├── application/
-│   │   │   └── service/
-│   │   │       ├── MedicationService.java    # Interfaz del servicio
-│   │   │       └── MedicationServiceImpl.java # Implementación del servicio
-│   │   ├── domain/
-│   │   │   └── model/
-│   │   │       └── Medication.java           # Entidad de medicamento
-│   │   └── infrastructure/
-│   │       └── web/
-│   │           ├── controller/
-│   │           │   └── HomeController.java   # Controlador principal
-│   │           ├── dto/
-│   │           │   └── ApiResponse.java      # DTO de respuesta
-│   │           └── exception/
-│   │               └── GlobalExceptionHandler.java # Manejador de excepciones
-│   └── resources/
-│       ├── application.yaml                  # Configuración de la aplicación
-│       └── static/
-│           └── index.html                    # Página inicial
-└── test/
-    └── java/com/katerin/farmacia/            # Pruebas unitarias
+- JDK 25 configurado en `JAVA_HOME`
+- Windows: se puede usar `demo/mvnw.cmd` sin instalar Maven
+- Linux/macOS: se puede usar `demo/mvnw`
+
+## Ejecutar el proyecto
+
+Desde la raíz del repositorio:
+
+### Windows
+
+```powershell
+cd demo
+\.\mvnw.cmd spring-boot:run
 ```
 
-## Requisitos Previos
-
-- JDK 8 o superior
-- Maven 3.6 o superior
-
-## Instalación y Ejecución
-
-### 1. Clonar o descargar el proyecto
+### Linux/macOS
 
 ```bash
 cd demo
+./mvnw spring-boot:run
 ```
 
-### 2. Compilar el proyecto
+La aplicación queda disponible en `http://localhost:8080`.
 
-En Windows, usando el script incluido:
-```bash
-mvnw.cmd clean install
+## Compilar y probar
+
+Windows:
+
+```powershell
+cd demo
+\.\mvnw.cmd clean verify
 ```
 
-O en línea de comandos:
-```bash
-mvn clean install
-```
-
-### 3. Ejecutar la aplicación
-
-```bash
-mvnw.cmd spring-boot:run
-```
-
-O:
-```bash
-mvn spring-boot:run
-```
-
-La aplicación se iniciará en `http://localhost:8080`
-
-## Ejecución de Pruebas
-
-Para ejecutar todas las pruebas unitarias:
+Linux/macOS:
 
 ```bash
-mvnw.cmd test
+cd demo
+./mvnw clean verify
 ```
 
-O:
+El reporte de cobertura se genera en `demo/target/site/jacoco/index.html`.
+
+## Endpoints
+
+### Health check
+
+```http
+GET /healthcheck
+```
+
+Respuesta:
+
+```json
+{"status":"UP"}
+```
+
+### Listar medicamentos
+
+```http
+GET /api/v1/medications
+```
+
+Ejemplo:
+
 ```bash
-mvn test
+curl http://localhost:8080/api/v1/medications
 ```
 
-### Pruebas disponibles
+La respuesta contiene los medicamentos disponibles en memoria:
 
-- `FarmaciaApplicationTests` - Pruebas de contexto de la aplicación
-- `HomeControllerTest` - Pruebas del controlador principal
-- `MedicationServiceImplTest` - Pruebas del servicio de medicamentos
-- `DomainModelTest` - Pruebas del modelo de dominio
-- `ApiResponseTest` - Pruebas del DTO
-- `GlobalExceptionHandlerTest` - Pruebas del manejador de excepciones
+```json
+[
+    {"id":1,"name":"Paracetamol","preice":950},
+    {"id":2,"name":"Ibuprofeno","preice":1200},
+    {"id":2,"name":"Amoxicilina","preice":7490}
+]
+```
 
-## Componentes Principales
+### Consultar un medicamento
 
-### Controladores
-- **HomeController**: Controlador principal que maneja las solicitudes del sistema
+```http
+GET /api/v1/medications/{id}
+```
 
-### Servicios
-- **MedicationService**: Interfaz para operaciones de medicamentos
-- **MedicationServiceImpl**: Implementación del servicio de medicamentos
+Devuelve `200 OK` si encuentra el medicamento y `404 Not Found` si no existe.
 
-### Modelos
-- **Medication**: Entidad que representa un medicamento
+```bash
+curl http://localhost:8080/api/v1/medications/1
+```
 
-### DTOs
-- **ApiResponse**: Objeto para estandarizar las respuestas de API
+### Comprar medicamentos
 
-### Excepciones
-- **GlobalExceptionHandler**: Maneja excepciones globales de la aplicación
+```http
+POST /api/v1/medications/purchase
+Content-Type: application/json
+```
+
+El stock actual de la simulación es de 3 unidades. Una compra que supera ese valor devuelve `422 Unprocessable Entity`.
+
+```bash
+curl -X POST http://localhost:8080/api/v1/medications/purchase \
+    -H "Content-Type: application/json" \
+    -d "{\"quantity\":2}"
+```
+
+Compra exitosa:
+
+```json
+{"status":200,"message":"Operación exitosa.","name":"","timestamp":"2026-01-01T12:00:00"}
+```
+
+## Estructura
+
+```text
+demo/
+├── src/main/java/com/katerin/farmacia/
+│   ├── application/service/       # Casos de uso y lógica de medicamentos
+│   ├── domain/model/              # Modelo Medication
+│   ├── domain/exception/          # Excepciones del dominio
+│   └── infrastructure/web/        # Controladores, DTOs y manejo de errores
+├── src/main/resources/
+│   ├── application.yaml
+│   └── static/index.html
+└── src/test/                      # Pruebas unitarias y de integración
+```
 
 ## Configuración
 
-La configuración de la aplicación se encuentra en `src/main/resources/application.yaml`
-
-## Dependencias Principales
-
-Las dependencias del proyecto se definen en `pom.xml` e incluyen:
-- Spring Boot Starter Web
-- Spring Boot Starter Test
-
-## Contribuciones
-
-Para contribuir al proyecto, por favor:
-1. Crea una rama para tu característica
-2. Realiza tus cambios
-3. Asegúrate de que todas las pruebas pasen
-4. Envía un pull request
-
-## Autor
-
-Katerin
+La configuración principal está en `demo/src/main/resources/application.yaml`. Actualmente define el nombre de la aplicación como `farmacia_api`; no requiere base de datos ni variables de entorno adicionales.
 
 ## Licencia
 
-Este proyecto está bajo licencia [Especificar licencia]
-
-## Soporte
-
-Para reportar problemas o sugerencias, por favor abre un issue en el repositorio.
+No se ha definido una licencia para este proyecto.
